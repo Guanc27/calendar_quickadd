@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f5f0eb;
+  --text-primary: #2c2825;
+  --text-muted: #9a9590;
+  --text-faint: #c4b8ad;
+  --border: #c4b8ad;
+  --accent: #6b5e54;
+  --success: #5a7a5a;
+  --error: #9a5454;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text-primary);
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", "Cascadia Mono",
+    "Segoe UI Mono", monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
