@@ -57,8 +57,8 @@ src/
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Guanc27/proj2_calendar.git
-   cd proj2_calendar
+   git clone https://github.com/Guanc27/calendar_quickadd.git
+   cd calendar_quickadd
    npm install
    ```
 
