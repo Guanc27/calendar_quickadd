@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Calendar Quick Add
 
-## Getting Started
+A web app for adding events to Google Calendar using natural language. Type something like "finish problem set 3pm 1hr tomorrow" and it parses the title, date, time, and duration automatically.
 
-First, run the development server:
+## Usage
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. Sign in with your Google account.
+2. Type an event in natural language:
+   - `team meeting 2pm friday` — creates a 1-hour event
+   - `dentist appointment 9:30am 45m march 15` — 45-minute event
+   - `submit report tomorrow 5pm to 6pm` — explicit time range
+3. The preview updates as you type, showing parsed title/date/time.
+4. Press **Enter** or click **Add to Google Calendar**.
+
+Durations default to 1 hour if not specified. Supports formats like `1hr`, `30m`, `2 hours`, `45 minutes`.
+
+## How It Works
+
+1. As you type, [chrono-node](https://github.com/wanasit/chrono) extracts dates and times from natural language.
+2. A regex parser identifies duration patterns (`1hr`, `30m`, etc.) and calculates end time.
+3. The remaining text becomes the event title.
+4. On submit, the frontend sends parsed data to a Next.js API route.
+5. The server authenticates via NextAuth.js and calls the Google Calendar API to create the event.
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── page.tsx                      # Main page, auth check
+│   ├── layout.tsx                    # Root layout with SessionProvider
+│   └── api/
+│       ├── calendar/route.ts         # POST endpoint to create events
+│       └── auth/[...nextauth]/route.ts
+├── components/
+│   ├── EventInput.tsx                # Input form with real-time parsing
+│   ├── EventPreview.tsx              # Shows parsed event details
+│   └── Toast.tsx                     # Success/error notifications
+└── lib/
+    ├── auth.ts                       # NextAuth config, token refresh
+    ├── parse-event.ts                # Natural language parsing logic
+    ├── google-calendar.ts            # Google Calendar API client
+    └── types.ts                      # TypeScript declarations
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Prerequisites
 
-## Learn More
+- Node.js 18+
+- Google Cloud project with Calendar API enabled
+- OAuth 2.0 credentials (Web application type)
 
-To learn more about Next.js, take a look at the following resources:
+### Setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Guanc27/proj2_calendar.git
+   cd proj2_calendar
+   npm install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Create `.env.local` with your credentials:
+   ```
+   AUTH_SECRET=<generate with: openssl rand -base64 32>
+   AUTH_GOOGLE_ID=<your-google-client-id>
+   AUTH_GOOGLE_SECRET=<your-google-client-secret>
+   ```
 
-## Deploy on Vercel
+3. In Google Cloud Console, add `http://localhost:3000/api/auth/callback/google` to authorized redirect URIs.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. Start the dev server:
+   ```bash
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open http://localhost:3000.
+
+### Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm start` | Run production server |
+| `npm run lint` | Run ESLint |
+
+### Deploy
+
+Deploy to [Vercel](https://vercel.com) with one click. Set the three environment variables in the Vercel dashboard and update the OAuth redirect URI to your production domain.
+
+## License
+
+MIT License
