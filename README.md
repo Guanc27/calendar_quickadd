@@ -87,9 +87,73 @@ Open http://localhost:3000.
 | `npm start` | Run production server |
 | `npm run lint` | Run ESLint |
 
-### Deploy
+---
 
-Deploy to [Vercel](https://vercel.com) with one click. Set the three environment variables in the Vercel dashboard and update the OAuth redirect URI to your production domain.
+## Infrastructure
+
+### Architecture Overview
+
+```
+┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
+│                 │      │                 │      │                 │
+│  User Browser   │─────▶│  Vercel Edge    │─────▶│  Google APIs    │
+│                 │      │  (Next.js app)  │      │  (Calendar,     │
+│                 │◀─────│                 │◀─────│   OAuth)        │
+└─────────────────┘      └─────────────────┘      └─────────────────┘
+```
+
+### Hosting: Vercel
+
+The app is deployed on [Vercel](https://vercel.com), which provides:
+- Automatic deployments on git push
+- Edge network for fast global delivery
+- Serverless functions for API routes
+- Free SSL certificates
+
+### Google Cloud Platform
+
+GCP is used for authentication and calendar access (not hosting):
+
+| Service | Purpose |
+|---------|---------|
+| OAuth 2.0 | User authentication via Google account |
+| Calendar API | Create events on user's calendar |
+
+**Console:** [console.cloud.google.com](https://console.cloud.google.com)
+
+OAuth credentials are configured in **APIs & Services → Credentials**.
+
+### Environment Variables
+
+Set these in the Vercel dashboard under **Settings → Environment Variables**:
+
+| Variable | Description |
+|----------|-------------|
+| `AUTH_SECRET` | Random string for encrypting session tokens |
+| `AUTH_GOOGLE_ID` | OAuth client ID from GCP |
+| `AUTH_GOOGLE_SECRET` | OAuth client secret from GCP |
+
+### OAuth Redirect URIs
+
+In Google Cloud Console, add these authorized redirect URIs:
+
+- Local: `http://localhost:3000/api/auth/callback/google`
+- Production: `https://<your-app>.vercel.app/api/auth/callback/google`
+
+### Deployment
+
+Vercel auto-deploys when you push to `main`:
+
+```bash
+git add .
+git commit -m "your changes"
+git push
+```
+
+Manual deploy via CLI:
+```bash
+npx vercel --prod
+```
 
 ## License
 
